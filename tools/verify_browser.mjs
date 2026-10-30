@@ -193,6 +193,7 @@ try {
   const shots = [
     { name: 'desktop-top', w: 1440, h: 900, scroll: 0 },
     { name: 'desktop-ex01', w: 1440, h: 900, sel: '#ex-01' },
+    { name: 'desktop-ex06', w: 1440, h: 900, sel: '#ex-06' },
     { name: 'desktop-ex07', w: 1440, h: 900, sel: '#ex-07' },
     { name: 'desktop-ex08', w: 1440, h: 900, sel: '#ex-08' },
     { name: 'desktop-ex16', w: 1440, h: 900, sel: '#ex-16' },

@@ -52,6 +52,8 @@ var Chart = (function () {
     return d.trim();
   }
 
+  var clipSeq = 0;
+
   /* 主渲染。spec 见 ARCHITECTURE.md；返回完整 <svg>。 */
   function render(spec) {
     var W = 720, H = spec.height || 330;
@@ -93,6 +95,11 @@ var Chart = (function () {
     var s = [];
     s.push('<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart-svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="' +
       esc(spec.aria || spec.yLabel || 'chart') + '">');
+    // 绘图区裁剪：曲线冲出 y 轴区间时（如 g→i 时 (1+g)/(i−g) 发散）只画到框边，
+    // 不靠 svg 的 overflow 兜——.chart-svg 是 overflow:visible，越界会直接画到卡片外。
+    var clipId = 'clip' + (++clipSeq);
+    s.push('<defs><clipPath id="' + clipId + '"><rect x="' + m.l + '" y="' + m.t +
+      '" width="' + pw + '" height="' + ph + '"/></clipPath></defs>');
 
     // 网格 + y 轴刻度
     ty.values.forEach(function (v) {
@@ -148,6 +155,8 @@ var Chart = (function () {
       }
     });
 
+    s.push('<g clip-path="url(#' + clipId + ')">');
+
     // 柱状 / 直方
     if (spec.type === 'bar' || spec.type === 'hist') {
       var pts = spec.series[0].points; // [x, y, widthPx?]
@@ -156,6 +165,9 @@ var Chart = (function () {
         if (!isFinite(p[1])) return;
         var cx = spec.type === 'hist' ? X(p[0]) : X(p[0]);
         var y1 = Y(Math.max(0, p[1])), y0 = Y(Math.min(0, p[1]));
+        // 同面积的毛病：纵向区间不含 0 时 Y(0) 在框外，柱子会画出去
+        y1 = Math.max(m.t, Math.min(m.t + ph, y1));
+        y0 = Math.max(m.t, Math.min(m.t + ph, y0));
         var hgt = Math.max(1, Math.abs(y0 - y1));
         var x0 = cx - bw / 2;
         s.push('<rect class="bar ' + (spec.series[0].cls || '') + '" x="' + x0.toFixed(1) + '" y="' + Math.min(y0, y1).toFixed(1) +
@@ -176,8 +188,14 @@ var Chart = (function () {
             if (isFinite(ser.points[k][1])) { if (first === null) first = k; last = k; }
           }
           if (first !== null) {
-            var darea = d + ' L' + X(ser.points[last][0]).toFixed(2) + ' ' + Y(0).toFixed(2) +
-              ' L' + X(ser.points[first][0]).toFixed(2) + ' ' + Y(0).toFixed(2) + ' Z';
+            // 填充基线：y=0 在绘图区内就用它，否则夹到绘图区边缘。
+            // 不夹的话，纵轴区间不含 0 时（如账户价值 900–1700）面积会画到框外，
+            // 加上 .chart-svg{overflow:visible} 就压在下面的滑块和下一件展品上。
+            var yBase = Y(0);
+            if (!isFinite(yBase)) yBase = m.t + ph;
+            yBase = Math.max(m.t, Math.min(m.t + ph, yBase));
+            var darea = d + ' L' + X(ser.points[last][0]).toFixed(2) + ' ' + yBase.toFixed(2) +
+              ' L' + X(ser.points[first][0]).toFixed(2) + ' ' + yBase.toFixed(2) + ' Z';
             s.push('<path class="area ' + (ser.cls || '') + '" d="' + darea + '"/>');
           }
         }
@@ -196,6 +214,8 @@ var Chart = (function () {
         s.push('<text class="dot-label" x="' + (x + 8).toFixed(1) + '" y="' + (y - 8).toFixed(1) + '">' + esc(mk.label) + '</text>');
       }
     });
+
+    s.push('</g>');
 
     // 轴标签
     if (spec.xLabel) {
