@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>精算陈列馆 · The Actuarial Cabinet</title>
+<meta name="description" content="二十件可交互的精算展品：从累积因子到破产概率，拖动参数，看公式当场变形。">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <header class="masthead">
+    <p class="mast-kicker">The Actuarial Cabinet &nbsp;·&nbsp; IFoA CS1 / CM1</p>
+    <h1>精算陈列馆</h1>
+    <p class="mast-sub">
+      二十件展品，四座展厅。每一件都能拖——把参数拉开，看概率怎样一步步变成价格。
+    </p>
+    <ul class="mast-index">
+      <li>利息理论 · 7</li>
+      <li>生存模型 · 4</li>
+      <li>生命年金与寿险 · 5</li>
+      <li>风险理论 · 4</li>
+    </ul>
+  </header>
+
+  <nav class="rail" aria-label="展厅目录">
+    <p class="rail-title">目录 · <span id="total">0</span> 件</p>
+    <div id="nav-list"></div>
+  </nav>
+
+  <main id="hall-root"></main>
+
+  <footer class="colophon">
+    <p>精算陈列馆 · 二十件展品 · 全部公式由 <code>js/math.js</code> 实时计算，逐条与 <code>tools/reference.py</code> 的 Python 参考实现对账（相对误差 &lt; 1e-9）。</p>
+    <p>参数为教学用途设定，非真实经验生命表或市场数据。用于理解机制，不可直接用于定价。</p>
+  </footer>
+
+</div>
+
+<noscript>
+  <p style="padding:40px;font-family:system-ui">这个陈列馆靠 JavaScript 驱动滑块与图表，请启用后重新打开。</p>
+</noscript>
+
+<script src="js/math.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/core.js"></script>
+<script src="js/content.js"></script>
+<script src="js/exhibits/hall1-interest.js"></script>
+<script src="js/exhibits/hall2-survival.js"></script>
+<script src="js/exhibits/hall3-life.js"></script>
+<script src="js/exhibits/hall4-risk.js"></script>
+<script>MUSEUM.start();</script>
+
+</body>
+</html>
