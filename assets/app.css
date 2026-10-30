@@ -617,3 +617,31 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   html { scroll-behavior: auto; }
   * { transition: none !important; }
 }
+
+
+/* ===== Tufte 图层（vendor: assets/tufte/tufte.css，MIT）=====
+   tufte.css 是**文档级**样式表：body 加 87.5% 宽 + 12.5% 左内边距、section>p 限到 55%、
+   p/ul 放大到 1.4rem/2rem。直接叠加会拆掉本页的侧栏网格。所以这里留它的排版骨架
+   （ET Book 与老式数字）与行距节奏，把版式骨架交还给 app.css。 */
+:root {
+  --serif: "et-book", "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
+           Georgia, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", SimSun, serif;
+}
+
+html { font-size: 16px; }
+body { width: auto; max-width: none; margin: 0; padding: 0; }
+
+/* 把 tufte 的文档版心收回去，宽度交给本页的 grid */
+section > p, section > footer, section > table,
+section > ul, section > ol, section > dl,
+figure, blockquote p, hr { width: auto; max-width: none; }
+figure { margin: 0; }
+p, ul, ol, dl { font-size: inherit; line-height: inherit; }
+p { margin-top: 0; margin-bottom: 1em; }
+h1, h2, h3, h4 { margin-top: 0; }
+
+/* 展品标题是 h2，tufte 默认给它斜体；这里要正文体 */
+.ex-title { font-style: normal; }
+
+/* Tufte 的老式数字：展品编号与展厅索引用 et-book 的老式数字字形 */
+.ex-num, .hall-idx, .numeral { font-family: "et-book-roman-old-style", var(--serif); }
